@@ -5,7 +5,7 @@ import java.util.Scanner;
 import java.util.InputMismatchException;
 
 public class GreenValleySaga {
-    
+
     // --- Konstanta ANSI Colors ---
     public static final String RESET = "\033[0m";
     public static final String BOLD = "\033[1m";
@@ -18,21 +18,21 @@ public class GreenValleySaga {
     public static final String HIJAU_BOLD = "\033[1;32m";
     public static final String KUNING_BOLD = "\033[1;33m";
     public static final String CYAN_BOLD = "\033[1;36m";
-    
+
     // --- Biaya Energi ---
-    private static final int ENERGI_TANAM = 15;
+    private static final int ENERGI_TANAM_SATU = 15; // Energi tanam satu bibit
+    private static final int ENERGI_TANAM_BANYAK_PER_BIBIT = 12; // Energi LEBIH MURAH per bibit jika tanam banyak
     private static final int ENERGI_SIRAM = 5;
     private static final int ENERGI_PUPUK = 7;
     private static final int ENERGI_BASMI_HAMA = 10;
-    // ENERGI_PULIH_TIDUR diubah menjadi 100
-    private static final int ENERGI_PULIH_TIDUR = 100; 
+    private static final int ENERGI_PULIH_TIDUR = 100;
 
     // --- Objek Game ---
     private static Scanner scanner = new Scanner(System.in);
-    private static Pemain pemain = new Pemain(500, 100); 
-    private static Lahan lahan = new Lahan(5, "Subur"); 
-    private static Toko toko = new Toko(); 
-    private static Waktu waktu = new Waktu(); 
+    private static Pemain pemain = new Pemain(500, 100);
+    private static Lahan lahan = new Lahan(5, "Subur");
+    private static Toko toko = new Toko();
+    private static Waktu waktu = new Waktu();
     private static Cuaca cuaca = new Cuaca();
 
     private static void bersihkanLayar() {
@@ -64,12 +64,12 @@ public class GreenValleySaga {
             return pilihan;
         } catch (InputMismatchException e) {
             System.out.println(MERAH_BOLD + "Input tidak valid. Harap masukkan angka." + RESET);
-            scanner.next();
+            scanner.nextLine(); // Membersihkan buffer scanner yang salah
             tunggu(1000);
             return -1;
         }
     }
-    
+
     private static void tampilkanLayarPembuka() {
         bersihkanLayar();
         System.out.println(HIJAU_BOLD);
@@ -114,33 +114,28 @@ public class GreenValleySaga {
     }
 
     /**
-     * DIMODIFIKASI: Menu diubah, opsi 7 dihapus, opsi 8 jadi 7, opsi 9 jadi 8
+     * DIMODIFIKASI: Menu diubah, opsi tanam jadi 2
      */
     private static void tampilkanMenu() {
         System.out.println("\n--- Menu Aksi ---");
-        System.out.println("1. Tanam Bibit      (Energi: -" + ENERGI_TANAM + ")");
-        System.out.println("2. Siram Lahan      (Energi: -" + ENERGI_SIRAM + ")");
-        System.out.println("3. Beri Pupuk       (Energi: -" + ENERGI_PUPUK + ")");
-        System.out.println("4. Basmi Hama       (Energi: -" + ENERGI_BASMI_HAMA + ")");
-        System.out.println("5. Panen Tanaman    (Energi: -10 per tanaman)");
-        System.out.println("6. Jual Hasil Panen (Ke Toko)");
-        // Opsi 7 Ganti Hari (Tunggu) DIHAPUS
-        System.out.println(HIJAU_BOLD + "7. Tidur" + RESET + "            (Ganti Hari & Pulihkan Energi Penuh)"); // Opsi 7 baru
-        System.out.println(MERAH + "8. Keluar dari Game" + RESET); // Opsi 8 baru
-        System.out.print(BOLD + "Pilihan Anda (1-8): " + RESET); // Range pilihan diubah
+        System.out.println("1. Tanam 1 Bibit    (Energi: -" + ENERGI_TANAM_SATU + ")");
+        System.out.println("2. Tanam Banyak Bibit (Energi: -" + ENERGI_TANAM_BANYAK_PER_BIBIT + " per bibit)"); // BARU
+        System.out.println("3. Siram Lahan      (Energi: -" + ENERGI_SIRAM + ")");
+        System.out.println("4. Beri Pupuk       (Energi: -" + ENERGI_PUPUK + ")");
+        System.out.println("5. Basmi Hama       (Energi: -" + ENERGI_BASMI_HAMA + ")");
+        System.out.println("6. Panen Tanaman    (Energi: -10 per tanaman)");
+        System.out.println("7. Jual Hasil Panen (Ke Toko)");
+        System.out.println(HIJAU_BOLD + "8. Tidur" + RESET + "            (Ganti Hari & Pulihkan Energi Penuh)");
+        System.out.println(MERAH + "9. Keluar dari Game" + RESET);
+        System.out.print(BOLD + "Pilihan Anda (1-9): " + RESET); // Range pilihan diubah
     }
-    
+
     // --- Method Aksi (Controller) ---
 
-    /**
-     * DIMODIFIKASI: Parameter boolean dihapus, logika tunggu dipindah ke pemanggil
-     */
     private static void prosesGantiHari() {
         waktu.gantiHari();
         cuaca.prediksiCuaca();
-        
         lahan.updateHarian(cuaca);
-        
         ArrayList<Tanaman> yangDipanen = lahan.cekPanen(pemain);
         if (!yangDipanen.isEmpty()) {
             System.out.println(HIJAU_BOLD + "[Panen] Tanaman berikut berhasil dipanen otomatis:" + RESET);
@@ -148,14 +143,11 @@ public class GreenValleySaga {
                 System.out.println("- " + t.getNama());
             }
         }
-        
-        // Event hama
         if (Math.random() < 0.20) {
             ArrayList<Tanaman> daftarTanaman = lahan.getDaftarTanaman();
             if (!daftarTanaman.isEmpty()) {
                 int indexTanaman = (int)(Math.random() * daftarTanaman.size());
                 Tanaman target = daftarTanaman.get(indexTanaman);
-                
                 if (!target.isSakit()) {
                     target.setSakit(true);
                     System.out.println(MERAH_BOLD + "\n!!! EVENT: SERANGAN HAMA !!!" + RESET);
@@ -164,17 +156,20 @@ public class GreenValleySaga {
             }
         }
     }
-    
-    private static void prosesTanam() {
-        System.out.println("\n--- Beli & Tanam Bibit ---");
+
+    /**
+     * DIMODIFIKASI: Method ini sekarang untuk tanam SATU bibit
+     */
+    private static void prosesTanamSatu() {
+        System.out.println("\n--- Beli & Tanam 1 Bibit ---");
         System.out.println("1. Bibit Padi (Harga: " + HIJAU + toko.getHargaBeli("Bibit Padi") + RESET + ")");
         System.out.println("2. Bibit Jagung (Harga: " + HIJAU + toko.getHargaBeli("Bibit Jagung") + RESET + ")");
         System.out.println("3. Batal");
         System.out.print(BOLD + "Pilihan Bibit (1-3): " + RESET);
-        
+
         int pilihan = bacaPilihan();
         Tanaman bibitBaru = null;
-        
+
         if (pilihan == 1) {
             bibitBaru = toko.beliBibit(pemain, "Bibit Padi");
         } else if (pilihan == 2) {
@@ -184,9 +179,9 @@ public class GreenValleySaga {
             tunggu(1000);
             return;
         }
-        
+
         if (bibitBaru != null) {
-            if (lahan.menanam(bibitBaru)) {
+            if (lahan.menanam(bibitBaru)) { // Memanggil menanam(Tanaman)
                 System.out.println(HIJAU + "[Aksi] " + bibitBaru.getNama() + " telah ditanam." + RESET);
             } else {
                 System.out.println(MERAH + "[Info] Lahan penuh! Tanam gagal." + RESET);
@@ -197,13 +192,89 @@ public class GreenValleySaga {
         tunggu(1500);
     }
 
+    /**
+     * BARU: Method untuk Tanam BANYAK bibit (memanggil method overloading)
+     */
+    private static void prosesTanamBanyak() {
+        System.out.println("\n--- Beli & Tanam Banyak Bibit ---");
+        System.out.println("1. Bibit Padi (Harga: " + HIJAU + toko.getHargaBeli("Bibit Padi") + RESET + ")");
+        System.out.println("2. Bibit Jagung (Harga: " + HIJAU + toko.getHargaBeli("Bibit Jagung") + RESET + ")");
+        System.out.println("3. Batal");
+        System.out.print(BOLD + "Pilih jenis Bibit (1-3): " + RESET);
+
+        int pilihanJenis = bacaPilihan();
+        String namaBibit = "";
+        int hargaSatuan = 0;
+
+        if (pilihanJenis == 1) {
+            namaBibit = "Bibit Padi";
+            hargaSatuan = toko.getHargaBeli(namaBibit);
+        } else if (pilihanJenis == 2) {
+            namaBibit = "Bibit Jagung";
+            hargaSatuan = toko.getHargaBeli(namaBibit);
+        } else {
+            System.out.println("...Batal menanam.");
+            tunggu(1000);
+            return;
+        }
+
+        System.out.print(BOLD + "Jumlah bibit yang ingin dibeli dan ditanam: " + RESET);
+        int jumlah = bacaPilihan();
+
+        if (jumlah <= 0) {
+            System.out.println(MERAH + "Jumlah tidak valid." + RESET);
+            tunggu(1000);
+            return;
+        }
+
+        int totalHarga = hargaSatuan * jumlah;
+        int totalEnergi = ENERGI_TANAM_BANYAK_PER_BIBIT * jumlah;
+
+        // Cek uang dan energi
+        if (pemain.getUang() < totalHarga) {
+            System.out.println(MERAH + "[Info] Uang tidak cukup untuk membeli " + jumlah + " " + namaBibit + "." + RESET);
+            tunggu(1500);
+            return;
+        }
+        if (pemain.getEnergi() < totalEnergi) {
+             System.out.println(MERAH + "[Info] Energi tidak cukup untuk menanam " + jumlah + " bibit." + RESET);
+             tunggu(1500);
+            return;
+        }
+
+        // Proses pembelian dan pembuatan list bibit
+        System.out.println(HIJAU + "\nMembeli " + jumlah + " " + namaBibit + "..." + RESET);
+        boolean beliBerhasil = pemain.beli(namaBibit, hargaSatuan, jumlah); // Kurangi uang
+
+        if (beliBerhasil) {
+             ArrayList<Tanaman> bibitList = new ArrayList<>();
+             for (int i = 0; i < jumlah; i++) {
+                 if (namaBibit.equals("Bibit Padi")) {
+                     bibitList.add(new Padi());
+                 } else {
+                     bibitList.add(new Jagung());
+                 }
+             }
+
+             // Panggil method OVERLOADING menanam(ArrayList<Tanaman>)
+             lahan.menanam(bibitList);
+             pemain.pakaiEnergi(totalEnergi); // Kurangi energi
+             
+        } else {
+             // Seharusnya tidak terjadi karena sudah dicek, tapi jaga-jaga
+             System.out.println(MERAH + "[Error] Terjadi kesalahan saat pembelian." + RESET);
+        }
+        tungguEnter();
+    }
+
+
      private static void prosesJual() {
         System.out.println("\n--- Jual Hasil Panen ---");
         System.out.println("1. Padi (Harga Jual: " + HIJAU + toko.getHargaJual("Padi") + RESET + ")");
         System.out.println("2. Jagung (Harga Jual: " + HIJAU + toko.getHargaJual("Jagung") + RESET + ")");
         System.out.println("3. Batal");
         System.out.print(BOLD + "Pilihan Panen (1-3): " + RESET);
-        
+
         int pilihan = bacaPilihan();
         String namaItem = "";
         int hargaItem = 0;
@@ -219,7 +290,7 @@ public class GreenValleySaga {
              tunggu(1000);
             return;
         }
-        
+
         System.out.print(BOLD + "Jumlah yang ingin dijual: " + RESET);
         int jumlah = bacaPilihan();
         if (jumlah <= 0) {
@@ -235,7 +306,7 @@ public class GreenValleySaga {
         }
         tunggu(1500);
      }
-    
+
 
     /**
      * ==================================================
@@ -243,29 +314,33 @@ public class GreenValleySaga {
      * ==================================================
      */
     public static void main(String[] args) {
-        
+
         tampilkanLayarPembuka();
         cuaca.prediksiCuaca();
-        
+
         boolean isGameRunning = true;
 
         while (isGameRunning) {
             bersihkanLayar();
             tampilkanDashboard();
             tampilkanMenu();
-            
+
             int pilihan = bacaPilihan();
-            
+
             switch (pilihan) {
-                case 1: // Tanam
-                    if (pemain.pakaiEnergi(ENERGI_TANAM)) {
-                        prosesTanam();
+                case 1: // Tanam Satu
+                    if (pemain.pakaiEnergi(ENERGI_TANAM_SATU)) {
+                        prosesTanamSatu();
                     } else {
                         System.out.println(MERAH + "\n[Info] Energi tidak cukup untuk menanam!" + RESET);
                         tunggu(1500);
                     }
                     break;
-                case 2: // Siram
+                case 2: // Tanam Banyak (BARU)
+                    // Pengecekan energi dilakukan di dalam prosesTanamBanyak
+                    prosesTanamBanyak();
+                    break;
+                case 3: // Siram
                     if (pemain.pakaiEnergi(ENERGI_SIRAM)) {
                         System.out.println(BIRU + "\n[Aksi] Menyiram semua tanaman di lahan..." + RESET);
                         lahan.menyiram();
@@ -275,7 +350,7 @@ public class GreenValleySaga {
                         tunggu(1500);
                     }
                     break;
-                case 3: // Pupuk
+                case 4: // Pupuk
                     if (pemain.pakaiEnergi(ENERGI_PUPUK)) {
                         System.out.println(KUNING + "\n[Aksi] Memupuk semua tanaman di lahan..." + RESET);
                         lahan.memupuk();
@@ -285,7 +360,7 @@ public class GreenValleySaga {
                         tunggu(1500);
                     }
                     break;
-                case 4: // Basmi Hama
+                case 5: // Basmi Hama
                     if (pemain.pakaiEnergi(ENERGI_BASMI_HAMA)) {
                         System.out.println(MERAH + "\n[Aksi] Memberantas hama di lahan..." + RESET);
                         if(lahan.memberantasHama()) {
@@ -299,10 +374,9 @@ public class GreenValleySaga {
                         tunggu(1500);
                     }
                     break;
-                case 5: // Panen
+                case 6: // Panen
                     ArrayList<Tanaman> yangDipanen = lahan.cekPanen(pemain);
                     if (yangDipanen.isEmpty()) {
-                        // Cek apakah ada yg siap panen tapi energi habis
                         boolean adaSiapPanen = false;
                         for(Tanaman t : lahan.getDaftarTanaman()){
                             if(t.isSiapPanen()){
@@ -310,7 +384,7 @@ public class GreenValleySaga {
                                 break;
                             }
                         }
-                        if(adaSiapPanen && pemain.getEnergi() < 10) { // Asumsi energi panen = 10
+                        if(adaSiapPanen && pemain.getEnergi() < 10) {
                              System.out.println(MERAH + "\n[Info] Ada tanaman siap panen, tapi energi tidak cukup!" + RESET);
                         } else {
                              System.out.println(BIRU + "\n[Info] Belum ada tanaman yang siap dipanen." + RESET);
@@ -323,32 +397,31 @@ public class GreenValleySaga {
                     }
                     tunggu(1500);
                     break;
-                case 6: // Jual Panen
+                case 7: // Jual Panen
                     prosesJual();
                     break;
-                // Opsi 7 Ganti Hari (Tunggu) DIHAPUS
-                case 7: // Tidur (Opsi 7 baru)
+                case 8: // Tidur
                     System.out.println(HIJAU + "\nSelamat tidur... Zzz..." + RESET);
                     tunggu(1500);
-                    pemain.pulihkanEnergi(ENERGI_PULIH_TIDUR); // Pulihkan energi
-                    prosesGantiHari(); // Ganti hari
+                    pemain.pulihkanEnergi(ENERGI_PULIH_TIDUR);
+                    prosesGantiHari();
                     System.out.println(HIJAU_BOLD + "[Info] Energi telah pulih sepenuhnya!" + RESET);
                     tungguEnter();
                     break;
-                case 8: // Keluar (Opsi 8 baru)
+                case 9: // Keluar
                     isGameRunning = false;
                     System.out.println(KUNING_BOLD + "\nTerima kasih telah bermain!" + RESET);
                     break;
                 case -1: // Input error
                     break;
                 default:
-                    // Range pilihan diubah menjadi 1-8
-                    System.out.println(MERAH_BOLD + "\n[Error] Pilihan tidak valid (1-8)." + RESET); 
+                    // Range pilihan diubah menjadi 1-9
+                    System.out.println(MERAH_BOLD + "\n[Error] Pilihan tidak valid (1-9)." + RESET);
                     tunggu(1000);
                     break;
             }
         }
-        
+
         scanner.close();
     }
 }
