@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Pemain {
     private int uang; 
     private int energi; 
-    private int energiMaks; // Tambahkan ini
+    private int energiMaks; 
     private ArrayList<ItemPanen> inventori; 
 
     public Pemain(int uang, int energi) {
