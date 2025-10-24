@@ -118,14 +118,14 @@ public class GreenValleySaga {
      */
     private static void tampilkanMenu() {
         System.out.println("\n--- Menu Aksi ---");
-        System.out.println("1. Tanam 1 Bibit    (Energi: -" + ENERGI_TANAM_SATU + ")");
+        System.out.println("1. Tanam 1 Bibit      (Energi: -" + ENERGI_TANAM_SATU + ")");
         System.out.println("2. Tanam Banyak Bibit (Energi: -" + ENERGI_TANAM_BANYAK_PER_BIBIT + " per bibit)"); // BARU
-        System.out.println("3. Siram Lahan      (Energi: -" + ENERGI_SIRAM + ")");
-        System.out.println("4. Beri Pupuk       (Energi: -" + ENERGI_PUPUK + ")");
-        System.out.println("5. Basmi Hama       (Energi: -" + ENERGI_BASMI_HAMA + ")");
-        System.out.println("6. Panen Tanaman    (Energi: -10 per tanaman)");
-        System.out.println("7. Jual Hasil Panen (Ke Toko)");
-        System.out.println(HIJAU_BOLD + "8. Tidur" + RESET + "            (Ganti Hari & Pulihkan Energi Penuh)");
+        System.out.println("3. Siram Lahan        (Energi: -" + ENERGI_SIRAM + ")");
+        System.out.println("4. Beri Pupuk         (Energi: -" + ENERGI_PUPUK + ")");
+        System.out.println("5. Basmi Hama         (Energi: -" + ENERGI_BASMI_HAMA + ")");
+        System.out.println("6. Panen Tanaman      (Energi: -10 per tanaman)");
+        System.out.println("7. Jual Hasil Panen   (Ke Toko)");
+        System.out.println(HIJAU_BOLD + "8. Tidur" + RESET + "              (Ganti Hari & Pulihkan Energi Penuh)");
         System.out.println(MERAH + "9. Keluar dari Game" + RESET);
         System.out.print(BOLD + "Pilihan Anda (1-9): " + RESET); // Range pilihan diubah
     }
